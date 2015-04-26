@@ -6,12 +6,9 @@ NAO_PORT = 9559
 # Global variable to store the memory module instance
 memory = None
 
-
 from StateManager import *
 from naoqi import ALProxy
 from naoqi import ALModule
-
-from optparse import OptionParser
 
 class AudioRecognitionModule(ALModule):
 
@@ -21,9 +18,10 @@ class AudioRecognitionModule(ALModule):
     asr = None
 
 
-    def __init__(self, name):
-        ALModule.__init__(self, name)
+    def __init__(self, name, redball):
+        ALModule.__init__(self, name, redball)
         self.tts = ALProxy("ALTextToSpeech")
+        self.Redball = redball
 
 
     def disconnect(self, *_args):
@@ -35,6 +33,7 @@ class AudioRecognitionModule(ALModule):
             #memory.unregisterModuleReference("AudioRecognition")
             memory = None
             self.tts = None
+            self.Redball = None
 
             # TODO : Stop the ASR engine properly
 
@@ -43,7 +42,7 @@ class AudioRecognitionModule(ALModule):
             self.disconnect(self)
 
         self.tts.setLanguage("English")
-        self.tts.say("I am your humble servant, absolute master")
+        self.tts.say("Hi everyone")
         self.tts.setLanguage("French")
      
 
@@ -97,7 +96,7 @@ class AudioRecognitionModule(ALModule):
 
 
         # We acknoledge a word if the trust is high enough
-        if (word[1] > 0.35):
+        if (word[1] > 0.30):
             self.mot = word[0]
             #self.tts.say("Le mot reconnu est :"+self.mot)
             StateManager(self)

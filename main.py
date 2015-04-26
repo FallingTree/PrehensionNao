@@ -2,6 +2,8 @@
 import sys
 import time
 from AudioRecognitionModule import *
+from TactileHeadModule import *
+from redball import *
 
 
 from naoqi import ALBroker
@@ -13,15 +15,17 @@ NAO_PORT = 9559
 
 # Global variable to store the AudioRecognition module instance
 AudioRecognition = None
+TactileHead = None
+RedBall = None
 
 def main():
     """ Main entry point
 
     """
     global AudioRecognition
+    global RedBall
 
-    # Enable automatic garbage collection.
-    #gc.enable() 
+
     parser = OptionParser()
     parser.add_option("--pip",
         help="Parent broker port. The IP address or your robot",
@@ -55,9 +59,11 @@ def main():
     # Warning: AudioRecognition must be a global variable
     # The name given to the constructor must be the name of the
     # variable
-    AudioRecognition = AudioRecognitionModule("AudioRecognition")
+    
+    RedBall = RedBallRecognitionModule("RedBall")
+    AudioRecognition = AudioRecognitionModule("AudioRecognition",Redball)
     AudioRecognition.connect(AudioRecognition)
-
+    TactileHead = TactileHeadModule("TactileHead",AudioRecognition)
 
 
     try:

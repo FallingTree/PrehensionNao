@@ -1,7 +1,4 @@
 # -*- encoding: UTF-8 -*-
-""" Say 'hello, you' each time a human face is detected
-
-"""
 
 import sys
 import time
@@ -17,53 +14,110 @@ NAO_IP = "127.0.0.1"
 
 # Global variable to store the AudioRecognition module instance
 RedBallRecognition = None
-redball = None
+NAO_IP = "127.0.0.1"
+NAO_PORT = 9559
 memory = None
 
 
 class RedBallRecognitionModule(ALModule):
-    """ A simple module able to recognise worlds
 
-    """
+    tts = None
+    redBallTracker = None
+    motionProxy = None
+    postureProxy = None
+    lost = None
+    actif = None
+    countLost = 0
+
+
     def __init__(self, name):
         ALModule.__init__(self, name)
-        # No need for IP and port here because
-        # we have our Python broker connected to NAOqi broker
-
-        # Create a proxy to ALTextToSpeech for later use
         self.tts = ALProxy("ALTextToSpeech")
+        self.lost = False
+        self.actif = False
 
-        self.tts.say("Je lance le module de reconnaissance de balle")
-        redball = ALProxy("ALRedBallDetection",NAO_IP,9559)
-        
+    def disconnect(self, *_args):
+        if (self.redBallTracker != None):
+            self.redBallTracker.stopTracker()
+            print "Tracker Stopped"
+            self.motionProxy.setStiffnesses("Head", 0.0)
+            self.motion = None
+            self.redBallTracker = None
+            self.tts = None
+            self.countLost = 0
 
-        # Subscribe to the Wordrecognised event:
+
+    def connect(self, *_args):
+        if (self.redBallTracker != None):
+            self.disconnect()
+        self.motionProxy = ALProxy("ALMotion", NAO_IP, NAO_PORT)
+        self.postureProxy= ALProxy("ALRobotPosture", NAO_IP, NAO_PORT)
+        self.redBallTracker = ALProxy("ALRedBallTracker", NAO_IP, NAO_PORT)
+
+        self.postureProxy.applyPosture("Sit",0.5)
+        self.motionProxy.setStiffnesses("Head", 1.0)
+        self.redBallTracker.startTracker()
+        self.actif = True
+
+        #TODO : Faire un trhread pour la gestion
+
         global memory
         memory = ALProxy("ALMemory")
-        memory.subscribeToEvent("redBallDetected",
-            "RedBallRecognition",
-            "onredballDetected")
 
-    def onredballDetected(self, *_args):
-        """ This will be called each time the ball is recognised.
+    def gestion(self,*_args):
+        global memory
+        if (self.actif == True):
+            if (self.lost == True):
 
-        """
-        # Unsubscribe to the event when talking,
-        # to avoid repetitions
-        memory.unsubscribeToEvent("redBallDetected","RedBallRecognition")
-
-        tts.say("Red ball detected")
+                    #TODO : faire un mouvement de la teête et des bars cool
+                    self.motionProxy.setAngles("HeadYaw", 0, 0.3)
+                    self.motionProxy.setAngles("HeadPitch", 0, 0.3)
+                    time.sleep(1.0)
 
 
+                    self.motionProxy.setAngles("HeadPitch",0.5, 0.3)
+                    time.sleep(0.5)
+                    self.motionProxy.setAngles("HeadYaw", 1, 0.5)
+                    time.sleep(1.2)
+                    ide = self.motionProxy.post.setAngles("HeadYaw", -1, 0.5)
+                    self.motionProxy.wait(ide, 10)
+                    
 
-        memory.subscribeToEvent("redBallDetected",
-            "RedBallRecognition",
-            "onredballDetected")
+                    self.motionProxy.setAngles("HeadPitch",-0.5, 0.3)
+                    time.sleep(0.5)
+                    ide = self.motionProxy.post.setAngles("HeadYaw", 1, 0.5)
+                    self.motionProxy.wait(ide, 10)
 
-    def disconnect():
-            redball = None
-            tts = None
+                    self.motionProxy.setAngles("HeadYaw", 0, 0.3)
+                    ide = self.motionProxy.post.setAngles("HeadPitch", 0, 0.3)
+                    self.motionProxy.wait(ide, 10)
 
+
+            else:
+
+                data = memory.getData("redBallDetected",1)
+
+                if self.redBallTracker.isNewData():
+                    position = self.redBallTracker.getPosition()
+                    self.lost = False
+                    print "Position : "
+                    print "   x = "+str(position[0])+" y = "+str(position[1])+" z = "+str(position[2])
+                else:
+                    self.countLost = self.countLost+1
+                    print "CountLost = "+str(self.countLost)
+
+                    if (self.countLost > 10):
+                        print "Balle perdue"
+                        self.lost = True
+                        self.countLost = 0
+
+
+
+
+
+
+
+                
         
 
 
@@ -106,15 +160,18 @@ def main():
     # variable
     global RedBallRecognition
     RedBallRecognition = RedBallRecognitionModule("RedBallRecognition")
+    RedBallRecognition.connect()
+
 
     try:
         while True:
             time.sleep(1)
+            RedBallRecognition.post.gestion()
     except KeyboardInterrupt:
         print
         print "Interrupted by user, shutting down"
         myBroker.shutdown()
-        RedBallRecognition.disconnect
+        RedBallRecognition.disconnect()
         RedBallRecognition = None
         sys.exit(0)
 
