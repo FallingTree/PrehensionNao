@@ -9,6 +9,7 @@ memory = None
 from StateManager import *
 from naoqi import ALProxy
 from naoqi import ALModule
+from redball import *
 
 class AudioRecognitionModule(ALModule):
 
@@ -16,24 +17,27 @@ class AudioRecognitionModule(ALModule):
     mot = "Rien"
     cs = 0
     asr = None
+    Redballactif = False
+    
 
-
-    def __init__(self, name, redball):
-        ALModule.__init__(self, name, redball)
+    def __init__(self, name):
+        global Redball
+        ALModule.__init__(self, name)
         self.tts = ALProxy("ALTextToSpeech")
-        self.Redball = redball
+        
 
 
     def disconnect(self, *_args):
         global asr
         global memory
         if (self.asr != None):
+
             self.asr.unsubscribe("ALSpeech")
             self.asr = None
             #memory.unregisterModuleReference("AudioRecognition")
             memory = None
             self.tts = None
-            self.Redball = None
+
 
             # TODO : Stop the ASR engine properly
 
@@ -41,10 +45,13 @@ class AudioRecognitionModule(ALModule):
         if self.asr != None:
             self.disconnect(self)
 
-        self.tts.setLanguage("English")
-        self.tts.say("Hi everyone")
+
+
+
+        
         self.tts.setLanguage("French")
-     
+        self.tts.say("Bon, Que la fête commence")
+        
 
         # Connecting to the Speech recognition module
         self.asr = ALProxy("ALSpeechRecognition",NAO_IP,NAO_PORT)
@@ -52,13 +59,13 @@ class AudioRecognitionModule(ALModule):
         self.asr.setLanguage("French")
         # Enable to make a bip is played at the beginning of the recognition process, 
         # and another bip is played at the end of the process. 
-        # self.asr.setAudioExpression(True)
+        #self.asr.setAudioExpression(True)
 
         # The words that have to be recognised by the robot
         wordList=["On ne joue plus","Suis la balle","Attrape la balle","Dis bonjour Naomie"]
         # We update the vocabulary list
         # Warning : will crash if the ASR engine is still running
-        #asr.setVocabulary(wordList,False)
+        #self.asr.setVocabulary(wordList,False)
 
         # Says the word that can be recognised
         #self.tts.say("Les actions pouvant etre reconnus sont") 

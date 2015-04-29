@@ -3,6 +3,8 @@
 import time
 
 from naoqi import ALProxy
+from naoqi import ALProxy
+from naoqi import ALModule
 
 # Global variable to store the memory instance
 memory = None

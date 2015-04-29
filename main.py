@@ -16,7 +16,7 @@ NAO_PORT = 9559
 # Global variable to store the AudioRecognition module instance
 AudioRecognition = None
 TactileHead = None
-RedBall = None
+
 
 def main():
     """ Main entry point
@@ -60,8 +60,8 @@ def main():
     # The name given to the constructor must be the name of the
     # variable
     
-    RedBall = RedBallRecognitionModule("RedBall")
-    AudioRecognition = AudioRecognitionModule("AudioRecognition",Redball)
+    
+    AudioRecognition = AudioRecognitionModule("AudioRecognition")
     AudioRecognition.connect(AudioRecognition)
     TactileHead = TactileHeadModule("TactileHead",AudioRecognition)
 

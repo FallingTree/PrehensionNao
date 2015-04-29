@@ -1,11 +1,19 @@
 # -*- encoding: UTF-8 -*-
 import time
 from main import *
+RedBall = None
 
 def StateManager(AudioRecognition):
+	global RedBall
 	MotReconnu = AudioRecognition.mot
 	tts = AudioRecognition.tts
-	Redball = Audiorecognition.Redball
+	Redball = None
+
+	if AudioRecognition.Redballactif == False:
+		RedBall = RedBallRecognitionModule("RedBall")
+		AudioRecognition.Redballactif = True
+
+
 
 	if (MotReconnu == "Dis bonjour Naomie"):
 		tts.say("Bonjour maître")
@@ -14,9 +22,9 @@ def StateManager(AudioRecognition):
 
 	if (MotReconnu == "Suis la balle"):
 		if (AudioRecognition.cs == 0):
-			tts.say("Je suis à vos ordre maître absolu")
+			tts.say("Je suis à vos ordre ")
 			AudioRecognition.cs = 1
-			RedBall.connect()
+			RedBall.connect(RedBall)
 			print "Current State :"
 			print AudioRecognition.cs
 			return
@@ -30,7 +38,7 @@ def StateManager(AudioRecognition):
 		if (AudioRecognition.cs == 2):
 			tts.say("D'accord j'arrête d'essayer de l'attraper")
 			AudioRecognition.cs = 1
-			RedBall.disconnect()
+			RedBall.disconnect(RedBall)
 			print "Current State :"
 			print AudioRecognition.cs
 			return
@@ -66,6 +74,10 @@ def StateManager(AudioRecognition):
 			print "Current State :"
 			print AudioRecognition.cs
 			return
+
+
+	if AudioRecognition.cs == 0:
+		RedBall.disconnect(RedBall)
 
 	
 	
