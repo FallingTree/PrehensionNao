@@ -8,6 +8,7 @@ def StateManager(AudioRecognition):
 	MotReconnu = AudioRecognition.mot
 	tts = AudioRecognition.tts
 	Redball = None
+	motionProxy = ALProxy("ALMotion", NAO_IP, NAO_PORT)
 
 	if AudioRecognition.Redballactif == False:
 		RedBall = RedBallRecognitionModule("RedBall")
@@ -43,11 +44,11 @@ def StateManager(AudioRecognition):
 			print AudioRecognition.cs
 			return
 
-	if (MotReconnu == "Attrape la balle"):
+	if (MotReconnu == "Attrape"):
 		if ( AudioRecognition.cs == 1):
 			tts.say("D'accord je vais essayer de l'attraper")
 			AudioRecognition.cs = 2
-			RedBall.grabTarget()
+			RedBall.grabTarget(RedBall)
 			print "Current State :"
 			print AudioRecognition.cs
 			return
@@ -59,16 +60,15 @@ def StateManager(AudioRecognition):
 			return
 
 		if (AudioRecognition.cs == 0):
-			tts.say("D'accord je vais essayer de l'attraper")
-			AudioRecognition.cs = 2
-			RedBall.grabTarget()
+			tts.say("Fais moi d'abord suivre la balle")
 			print "Current State :"
 			print AudioRecognition.cs
 			return
 
 
 	if (MotReconnu == "On ne joue plus"):
-			tts.say("Ca marche mon pote")
+			motionProxy.setStiffnesses("Body",0)
+			tts.say("Ca marche")
 			AudioRecognition.cs = 0
 			RedBall.disconnect(RedBall)
 			print "Current State :"

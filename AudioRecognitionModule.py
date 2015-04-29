@@ -34,7 +34,7 @@ class AudioRecognitionModule(ALModule):
 
             self.asr.unsubscribe("ALSpeech")
             self.asr = None
-            #memory.unregisterModuleReference("AudioRecognition")
+            memory.unsubscribeToEvent("WordRecognized","AudioRecognition")
             memory = None
             self.tts = None
 
@@ -59,18 +59,18 @@ class AudioRecognitionModule(ALModule):
         self.asr.setLanguage("French")
         # Enable to make a bip is played at the beginning of the recognition process, 
         # and another bip is played at the end of the process. 
-        #self.asr.setAudioExpression(True)
+        self.asr.setAudioExpression(True)
 
         # The words that have to be recognised by the robot
-        wordList=["On ne joue plus","Suis la balle","Attrape la balle","Dis bonjour Naomie"]
+        wordList=["On ne joue plus","Suis la balle","Attrape","Dis bonjour Naomie"]
         # We update the vocabulary list
         # Warning : will crash if the ASR engine is still running
-        #self.asr.setVocabulary(wordList,False)
+        self.asr.setVocabulary(wordList,False)
 
         # Says the word that can be recognised
-        #self.tts.say("Les actions pouvant etre reconnus sont") 
-        #for index in range(0,len(wordList)):
-        #    self.tts.say(wordList[index])
+        self.tts.say("Les actions pouvant etre reconnus sont") 
+        for index in range(0,len(wordList)):
+            self.tts.say(wordList[index])
 
         # Subscribe to the Wordrecognised event
         self.asr.subscribe("ALSpeech")
@@ -103,7 +103,7 @@ class AudioRecognitionModule(ALModule):
 
 
         # We acknoledge a word if the trust is high enough
-        if (word[1] > 0.30):
+        if (word[1] > 0.28):
             self.mot = word[0]
             #self.tts.say("Le mot reconnu est :"+self.mot)
             StateManager(self)
