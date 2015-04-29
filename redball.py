@@ -32,12 +32,12 @@ class maThread(threading.Thread):
     def run(self):
         """Partie de programme qui se répète."""
         global memory
-        while self.running:
-
+        while self.running == True:
+            #print "Bam : "+str(self.lost)
             if self.lost == False:
 
                 #data = memory.getData("redBallDetected",1)
-
+                
                 if self.redBallTracker.isNewData():
                     position = self.redBallTracker.getPosition()
                     self.lost = False
@@ -49,14 +49,15 @@ class maThread(threading.Thread):
                     # S'il n'y a pas de nouvelles données, la balle est perdue de vu et on attends 10 itérations histoire d'être sur
                     self.countLost=self.countLost+1
                     print "CountLost = "+str(self.countLost)
+                    time.sleep(1)
 
-                    if (self.countLost > 250):
+                    if (self.countLost > 5):
                         print "Balle perdue"
                         self.lost = True
                         self.countLost = 0
 
 
-            else:
+            if self.lost == True:
             		# Dans le cas ou la balle est perdue de vue, on fait des mouvement de la tête pour la retrouver
                     #TODO : faire un mouvement de la tête et des bras cool
                     
@@ -65,36 +66,40 @@ class maThread(threading.Thread):
                     self.motionProxy.setAngles("HeadPitch", 0, 0.3)
                     time.sleep(1.0)
 
-                    if self.redBallTracker.isNewData():
-                        self.lost == False
-                        print "A"
-                    else:
 
-                        self.motionProxy.setAngles("HeadPitch",0.5, 0.3)
-                        time.sleep(0.5)
-                        self.motionProxy.setAngles("HeadYaw", 1, 0.5)
-                        time.sleep(1.2)
-                        self.motionProxy.setAngles("HeadYaw", -1, 0.5)
+
+                    self.motionProxy.setAngles("HeadPitch",0.5, 0.3)
+                    time.sleep(0.5)
+                    self.motionProxy.setAngles("HeadYaw", 1, 0.5)
+                    time.sleep(1.2)
+                    if self.redBallTracker.isNewData():
+                        self.lost = False
+                        print "B"
+                    else:
+                        self.motionProxy.setAngles("HeadYaw", -0.70, 0.5)
                         time.sleep(1.0)
-                        
+                    
                         if self.redBallTracker.isNewData():
-                            self.lost == False
+                            self.lost = False
                             print "B"
                         else:
 
                             self.motionProxy.setAngles("HeadPitch",-0.5, 0.3)
                             time.sleep(0.5)
-                            self.motionProxy.setAngles("HeadYaw", 1, 0.5)
+                            self.motionProxy.setAngles("HeadYaw", 0.70, 0.5)
                             time.sleep(1.0)
 
                             if self.redBallTracker.isNewData():
-                                self.lost == False
+                                self.lost = False
                                 print "C"
                             else:
                                 self.motionProxy.setAngles("HeadYaw", 0, 0.3)
                                 self.motionProxy.post.setAngles("HeadPitch", 0, 0.3)
                                 time.sleep(1.0)
                                 print "D"
+
+
+
 
 
 
