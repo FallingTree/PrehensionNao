@@ -39,7 +39,6 @@ class AudioRecognitionModule(ALModule):
             self.tts = None
 
 
-            # TODO : Stop the ASR engine properly
 
     def connect(self, *_args):
         if self.asr != None:

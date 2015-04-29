@@ -33,6 +33,8 @@ class maThread(threading.Thread):
         global memory
         self.postureProxy.applyPosture("Sit",0.5)
         self.motionProxy.setStiffnesses("Head", 1.0)
+        self.motionProxy.setAngles("HeadYaw", 0, 0.3)
+        self.motionProxy.setAngles("HeadPitch", 0, 0.3)
         self.redBallTracker.startTracker()
         while self.running == True:
             #print "Bam : "+str(self.lost)
@@ -99,7 +101,6 @@ class maThread(threading.Thread):
     def stop(self):
         """Permet un arrêt propre de la thread."""
         
-        print "Print BBB"
         self.redBallTracker.stopTracker()
         self.redBallTracker = None
         self.running = False
@@ -117,25 +118,29 @@ class RedBallRecognitionModule(ALModule):
         ALModule.__init__(self, name)
         self.threadgestion = maThread()
         self.premierefois = True
+        self.running = False
         
 
     def disconnect(self, *_args):
         if self.threadgestion != None:
-            if (self.threadgestion.running == True):
-                print "AAA"
+            if (self.running == True):
                 self.threadgestion.stop()
                 self.threadgestion.join(1) #1s de Timeout pour arrêter le thread
                 self.threadgestion = None
+                self.running = False
 
 
     def connect(self, *_args):
 
-        if self.premierefois == True:
-            self.threadgestion.start()
-            self.premierefois = False
-        else:
-            self.threadgestion = maThread()
-            self.threadgestion.start()
+        if self.running == False :
+            if self.premierefois == True:
+                self.threadgestion.start()
+                self.premierefois = False
+                self.running = True
+            else:
+                self.threadgestion = maThread()
+                self.threadgestion.start()
+                self.running = True
 
 
 
@@ -221,6 +226,8 @@ class RedBallRecognitionModule(ALModule):
             time.sleep(1)
             self.motionProxy.setAngles("RHand", 1, jointSpeed)
             self.tts.say("Je l'ai eu Youpi")
+            time.sleep(1)
+            self.motionProxy.setAngles("RHand", 0, jointSpeed)
             
             # Get closer to grab the object (Adjust some of the inverse kinematics errors)
 

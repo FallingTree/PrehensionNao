@@ -1,4 +1,5 @@
 # -*- encoding: UTF-8 -*-
+# Fonction qui gère la machine à états, elle est appelée à chaque fois qu'un mot est reconnu
 import time
 from main import *
 RedBall = None
@@ -77,6 +78,7 @@ def StateManager(AudioRecognition):
 
 
 	if AudioRecognition.cs == 0:
+		
 		RedBall.disconnect(RedBall)
 
 	
