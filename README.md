@@ -12,7 +12,8 @@ Crédits :
 Ammar Mian - Van-exaerde Cyprien - Lemmammer Imane
 
 ##### Utilisation :
-===================
+-------------------
+
 Pour lancer le script, il faut l'envoyer dans la mémoire du robot par ssh et l'exécuter directement sur le robot. Par exemple :
 
 ```
