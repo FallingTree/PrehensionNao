@@ -1,5 +1,5 @@
 ## Suivi et préhension d'une balle par un robot NAO
-===================================================
+----------------------------------------------------
 
 Ce dossier contient un code source python permettant au robot de suivre une balle rouge du regard et de l'attrapper (même si cela ne fonctionne pas encore).
 
@@ -12,7 +12,6 @@ Crédits :
 Ammar Mian - Van-exaerde Cyprien - Lemmammer Imane
 
 ##### Utilisation :
--------------------
 
 Pour lancer le script, il faut l'envoyer dans la mémoire du robot par ssh et l'exécuter directement sur le robot. Par exemple :
 
@@ -34,5 +33,3 @@ Les transitions entre les états se font par commande vocale. A tout moment, le 
 "Attrape",
 "Dis bonjour Naomie"
 
-Markups
--------
